@@ -35,6 +35,7 @@ class AiServiceStreamingResponseHandler implements StreamingChatResponseHandler 
     private final Object memoryId;
 
     private final Consumer<String> partialResponseHandler;
+    private final Consumer<String> reasoningResponseHandler;
     private final Consumer<ToolExecution> toolExecutionHandler;
     private final Consumer<ChatResponse> completeResponseHandler;
 
@@ -49,6 +50,7 @@ class AiServiceStreamingResponseHandler implements StreamingChatResponseHandler 
     AiServiceStreamingResponseHandler(AiServiceContext context,
                                       Object memoryId,
                                       Consumer<String> partialResponseHandler,
+                                      Consumer<String> reasoningResponseHandler,
                                       Consumer<ToolExecution> toolExecutionHandler,
                                       Consumer<ChatResponse> completeResponseHandler,
                                       Consumer<Throwable> errorHandler,
@@ -60,6 +62,7 @@ class AiServiceStreamingResponseHandler implements StreamingChatResponseHandler 
         this.memoryId = ensureNotNull(memoryId, "memoryId");
 
         this.partialResponseHandler = ensureNotNull(partialResponseHandler, "partialResponseHandler");
+        this.reasoningResponseHandler = reasoningResponseHandler;
         this.completeResponseHandler = completeResponseHandler;
         this.toolExecutionHandler = toolExecutionHandler;
         this.errorHandler = errorHandler;
@@ -75,7 +78,10 @@ class AiServiceStreamingResponseHandler implements StreamingChatResponseHandler 
     public void onPartialResponse(String partialResponse) {
         partialResponseHandler.accept(partialResponse);
     }
-
+    @Override
+    public void onReasoningResponse(String reasoningResponse) {
+        reasoningResponseHandler.accept(reasoningResponse);
+    }
     @Override
     public void onCompleteResponse(ChatResponse completeResponse) {
 
@@ -111,6 +117,7 @@ class AiServiceStreamingResponseHandler implements StreamingChatResponseHandler 
                     context,
                     memoryId,
                     partialResponseHandler,
+                    reasoningResponseHandler,
                     toolExecutionHandler,
                     completeResponseHandler,
                     errorHandler,
