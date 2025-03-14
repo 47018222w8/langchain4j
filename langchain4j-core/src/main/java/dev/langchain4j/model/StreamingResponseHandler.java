@@ -35,4 +35,12 @@ public interface StreamingResponseHandler<T> {
      * @param error The error that occurred
      */
     void onError(Throwable error);
+
+    /**
+     * Invoked each time the language model generates a new reasoning token in a textual response.
+     * If the model decides to start answering, this method will not be invoked; {@link #onNext} will be invoked instead.
+     *
+     * @param token The newly generated token, which is a part of the complete response.
+     */
+    default void onReasoning(String token) {};
 }

@@ -36,4 +36,12 @@ public interface StreamingChatResponseHandler {
      * @param error The error that occurred
      */
     void onError(Throwable error);
+    /**
+     * Invoked each time the model generates a reasoning response (usually a single token) in a textual response.
+     * If the model decides to start answering, this method will not be invoked;
+     * {@link #onPartialResponse} will be invoked instead.
+     *
+     * @param reasoningContent The partial response (usually a single token), which is a part of the complete response.
+     */
+    default void onReasoningResponse(String reasoningContent) {};
 }

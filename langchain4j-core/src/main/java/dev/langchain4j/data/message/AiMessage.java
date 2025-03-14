@@ -7,8 +7,10 @@ import java.util.Objects;
 
 import static dev.langchain4j.data.message.ChatMessageType.AI;
 import static dev.langchain4j.internal.Utils.copyIfNotNull;
+import static dev.langchain4j.internal.Utils.isNullOrBlank;
 import static dev.langchain4j.internal.Utils.isNullOrEmpty;
 import static dev.langchain4j.internal.Utils.quoted;
+import static dev.langchain4j.internal.ValidationUtils.ensureNotBlank;
 import static dev.langchain4j.internal.ValidationUtils.ensureNotEmpty;
 import static dev.langchain4j.internal.ValidationUtils.ensureNotNull;
 import static java.util.Arrays.asList;
@@ -21,6 +23,7 @@ import static java.util.Arrays.asList;
 public class AiMessage implements ChatMessage {
 
     private final String text;
+    private final String reasoningContent;
     private final List<ToolExecutionRequest> toolExecutionRequests;
 
     /**
@@ -31,6 +34,7 @@ public class AiMessage implements ChatMessage {
     public AiMessage(String text) {
         this.text = ensureNotNull(text, "text");
         this.toolExecutionRequests = null;
+        this.reasoningContent = null;
     }
 
     /**
@@ -40,9 +44,14 @@ public class AiMessage implements ChatMessage {
      */
     public AiMessage(List<ToolExecutionRequest> toolExecutionRequests) {
         this.text = null;
+        this.reasoningContent = null;
         this.toolExecutionRequests = ensureNotEmpty(toolExecutionRequests, "toolExecutionRequests");
     }
-
+    public AiMessage(String text, String reasoningContent) {
+        this.text = ensureNotNull(text, "text");
+        this.reasoningContent = isNullOrBlank(reasoningContent)?"":reasoningContent;
+        this.toolExecutionRequests = null;
+    }
     /**
      * Create a new {@link AiMessage} with the given text and tool execution requests.
      *
@@ -52,8 +61,13 @@ public class AiMessage implements ChatMessage {
     public AiMessage(String text, List<ToolExecutionRequest> toolExecutionRequests) {
         this.text = text;
         this.toolExecutionRequests = copyIfNotNull(toolExecutionRequests);
+        this.reasoningContent = null;
     }
-
+    public AiMessage(String text, String reasoningContent, List<ToolExecutionRequest> toolExecutionRequests) {
+        this.text = ensureNotNull(text, "text");
+        this.reasoningContent = ensureNotBlank(reasoningContent, "reasoningContent");
+        this.toolExecutionRequests = ensureNotEmpty(toolExecutionRequests, "toolExecutionRequests");
+    }
     /**
      * Get the text of the message.
      *
@@ -62,7 +76,9 @@ public class AiMessage implements ChatMessage {
     public String text() {
         return text;
     }
-
+    public String reasoningContent() {
+        return reasoningContent;
+    }
     /**
      * Get the tool execution requests of the message.
      *
@@ -92,18 +108,20 @@ public class AiMessage implements ChatMessage {
         if (o == null || getClass() != o.getClass()) return false;
         AiMessage that = (AiMessage) o;
         return Objects.equals(this.text, that.text)
-                && Objects.equals(this.toolExecutionRequests, that.toolExecutionRequests);
+                && Objects.equals(this.toolExecutionRequests, that.toolExecutionRequests)
+                && Objects.equals(this.reasoningContent, that.reasoningContent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(text, toolExecutionRequests);
+        return Objects.hash(text, reasoningContent, toolExecutionRequests);
     }
 
     @Override
     public String toString() {
         return "AiMessage {" +
                 " text = " + quoted(text) +
+                " reasoningContent = " + quoted(reasoningContent) +
                 " toolExecutionRequests = " + toolExecutionRequests +
                 " }";
     }
@@ -115,20 +133,24 @@ public class AiMessage implements ChatMessage {
     public static class Builder {
 
         private String text;
+        private String reasoningContent;
         private List<ToolExecutionRequest> toolExecutionRequests;
 
         public Builder text(String text) {
             this.text = text;
             return this;
         }
-
+        public Builder reasoningContent(String reasoningContent) {
+            this.reasoningContent = reasoningContent;
+            return this;
+        }
         public Builder toolExecutionRequests(List<ToolExecutionRequest> toolExecutionRequests) {
             this.toolExecutionRequests = toolExecutionRequests;
             return this;
         }
 
         public AiMessage build() {
-            return new AiMessage(text, toolExecutionRequests);
+            return new AiMessage(text,reasoningContent, toolExecutionRequests);
         }
     }
 
@@ -140,6 +162,16 @@ public class AiMessage implements ChatMessage {
      */
     public static AiMessage from(String text) {
         return new AiMessage(text);
+    }
+    /**
+     * Create a new {@link AiMessage} with the given text and reasoning content.
+     *
+     * @param text             the text of the message.
+     * @param reasoningContent the reasoning content of the message.
+     * @return the new {@link AiMessage}.
+     */
+    public static AiMessage from(String text, String reasoningContent) {
+        return new AiMessage(text, reasoningContent);
     }
 
     /**
@@ -161,7 +193,18 @@ public class AiMessage implements ChatMessage {
     public static AiMessage from(List<ToolExecutionRequest> toolExecutionRequests) {
         return new AiMessage(toolExecutionRequests);
     }
-
+    /**
+     * Create a new {@link AiMessage} with the given text, reasoning content and tool execution requests.
+     *
+     * @param text                  the text of the message.
+     * @param reasoningContent      the reasoning content of the message.
+     * @param toolExecutionRequests the tool execution requests of the message.
+     * @return the new {@link AiMessage}.
+     */
+    public static AiMessage from(
+            String text, String reasoningContent, List<ToolExecutionRequest> toolExecutionRequests) {
+        return new AiMessage(text, reasoningContent, toolExecutionRequests);
+    }
     /**
      * Create a new {@link AiMessage} with the given text and tool execution requests.
      *
@@ -182,7 +225,16 @@ public class AiMessage implements ChatMessage {
     public static AiMessage aiMessage(String text) {
         return from(text);
     }
-
+    /**
+     * Create a new {@link AiMessage} with the given text and reasoning content.
+     *
+     * @param text             the text of the message.
+     * @param reasoningContent the reasoning content of the message.
+     * @return the new {@link AiMessage}.
+     */
+    public static AiMessage aiMessage(String text, String reasoningContent) {
+        return from(text, reasoningContent);
+    }
     /**
      * Create a new {@link AiMessage} with the given tool execution requests.
      *

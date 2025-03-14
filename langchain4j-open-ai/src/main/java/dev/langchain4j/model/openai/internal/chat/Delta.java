@@ -22,6 +22,8 @@ public final class Delta {
     private final Role role;
     @JsonProperty
     private final String content;
+    @JsonProperty("reasoning_content")
+    private final String reasoningContent;
     @JsonProperty
     private final List<ToolCall> toolCalls;
     @JsonProperty
@@ -31,6 +33,7 @@ public final class Delta {
     public Delta(Builder builder) {
         this.role = builder.role;
         this.content = builder.content;
+        this.reasoningContent = builder.reasoningContent;
         this.toolCalls = builder.toolCalls;
         this.functionCall = builder.functionCall;
     }
@@ -42,7 +45,9 @@ public final class Delta {
     public String content() {
         return content;
     }
-
+    public String reasoningContent() {
+        return reasoningContent;
+    }
     public List<ToolCall> toolCalls() {
         return toolCalls;
     }
@@ -62,6 +67,7 @@ public final class Delta {
     private boolean equalTo(Delta another) {
         return Objects.equals(role, another.role)
                 && Objects.equals(content, another.content)
+                && Objects.equals(reasoningContent, another.reasoningContent)
                 && Objects.equals(toolCalls, another.toolCalls)
                 && Objects.equals(functionCall, another.functionCall);
     }
@@ -71,6 +77,7 @@ public final class Delta {
         int h = 5381;
         h += (h << 5) + Objects.hashCode(role);
         h += (h << 5) + Objects.hashCode(content);
+        h += (h << 5) + Objects.hashCode(reasoningContent);
         h += (h << 5) + Objects.hashCode(toolCalls);
         h += (h << 5) + Objects.hashCode(functionCall);
         return h;
@@ -97,6 +104,7 @@ public final class Delta {
 
         private Role role;
         private String content;
+        private String reasoningContent;
         private List<ToolCall> toolCalls;
         @Deprecated
         private FunctionCall functionCall;
@@ -110,7 +118,10 @@ public final class Delta {
             this.content = content;
             return this;
         }
-
+        public Builder reasoningContent(String reasoningContent) {
+            this.reasoningContent = reasoningContent;
+            return this;
+        }
         public Builder toolCalls(List<ToolCall> toolCalls) {
             if (toolCalls != null) {
                 this.toolCalls = unmodifiableList(toolCalls);

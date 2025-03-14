@@ -62,6 +62,10 @@ public interface StreamingChatLanguageModel {
                 ListenersUtil.onError(error, finalChatRequest, provider(), attributes, listeners);
                 handler.onError(error);
             }
+            @Override
+            public void onReasoningResponse (String reasoningContent) {
+                handler.onReasoningResponse(reasoningContent);
+            }
         };
 
         ListenersUtil.onRequest(finalChatRequest, provider(), attributes, listeners);

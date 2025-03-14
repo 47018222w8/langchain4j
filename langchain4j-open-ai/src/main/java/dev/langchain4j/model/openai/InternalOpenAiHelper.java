@@ -364,7 +364,7 @@ public class InternalOpenAiHelper {
     public static AiMessage aiMessageFrom(ChatCompletionResponse response) {
         AssistantMessage assistantMessage = response.choices().get(0).message();
         String text = assistantMessage.content();
-
+        String reasoningContent = assistantMessage.reasoningContent();
         List<ToolCall> toolCalls = assistantMessage.toolCalls();
         if (!isNullOrEmpty(toolCalls)) {
             List<ToolExecutionRequest> toolExecutionRequests = toolCalls.stream()
@@ -373,7 +373,7 @@ public class InternalOpenAiHelper {
                     .collect(toList());
             return isNullOrBlank(text)
                     ? AiMessage.from(toolExecutionRequests)
-                    : AiMessage.from(text, toolExecutionRequests);
+                    : AiMessage.from(text, reasoningContent, toolExecutionRequests);
         }
 
         FunctionCall functionCall = assistantMessage.functionCall();
@@ -382,12 +382,18 @@ public class InternalOpenAiHelper {
                     .name(functionCall.name())
                     .arguments(functionCall.arguments())
                     .build();
-            return isNullOrBlank(text)
-                    ? AiMessage.from(toolExecutionRequest)
-                    : AiMessage.from(text, singletonList(toolExecutionRequest));
+            AiMessage aiMessage;
+            if(isNullOrBlank(text)){
+                aiMessage = AiMessage.from(toolExecutionRequest);
+            }else if(isNullOrBlank(reasoningContent)){
+                aiMessage = AiMessage.from(text, singletonList(toolExecutionRequest));
+            }else{
+                aiMessage = AiMessage.from(text, reasoningContent, singletonList(toolExecutionRequest));
+            }
+            return aiMessage;
         }
 
-        return AiMessage.from(text);
+        return AiMessage.from(text, reasoningContent);
     }
 
     private static ToolExecutionRequest toToolExecutionRequest(ToolCall toolCall) {
@@ -498,7 +504,10 @@ public class InternalOpenAiHelper {
             public void onPartialResponse(String partialResponse) {
                 handler.onNext(partialResponse);
             }
-
+            @Override
+            public void onReasoningResponse(String reasoningContent) {
+                handler.onReasoning(reasoningContent);
+            }
             @Override
             public void onCompleteResponse(ChatResponse completeResponse) {
                 handler.onComplete(convertResponse(completeResponse));
