@@ -67,7 +67,7 @@ public class AiServiceTokenStream implements TokenStream {
     }
 
     @Override
-    public TokenStream onReasoning(final Consumer<String> reasoningResponseHandler) {
+    public TokenStream onReasoningResponse(final Consumer<String> reasoningResponseHandler) {
         this.reasoningResponseHandler = reasoningResponseHandler;
         this.onReasoningResponseInvoked++;
         return this;

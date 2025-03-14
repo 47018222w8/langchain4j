@@ -24,7 +24,7 @@ public interface TokenStream {
      * @return token stream instance used to configure or start stream processing
      */
     TokenStream onPartialResponse(Consumer<String> partialResponseHandler);
-    TokenStream onReasoning(Consumer<String> reasoningResponseHandler);
+    TokenStream onReasoningResponse(Consumer<String> reasoningResponseHandler);
     /**
      * The provided consumer will be invoked if any {@link Content}s are retrieved using {@link RetrievalAugmentor}.
      * <p>

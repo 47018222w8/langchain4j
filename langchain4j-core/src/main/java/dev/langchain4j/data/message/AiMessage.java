@@ -10,7 +10,6 @@ import static dev.langchain4j.internal.Utils.copyIfNotNull;
 import static dev.langchain4j.internal.Utils.isNullOrBlank;
 import static dev.langchain4j.internal.Utils.isNullOrEmpty;
 import static dev.langchain4j.internal.Utils.quoted;
-import static dev.langchain4j.internal.ValidationUtils.ensureNotBlank;
 import static dev.langchain4j.internal.ValidationUtils.ensureNotEmpty;
 import static dev.langchain4j.internal.ValidationUtils.ensureNotNull;
 import static java.util.Arrays.asList;
@@ -65,8 +64,8 @@ public class AiMessage implements ChatMessage {
     }
     public AiMessage(String text, String reasoningContent, List<ToolExecutionRequest> toolExecutionRequests) {
         this.text = ensureNotNull(text, "text");
-        this.reasoningContent = ensureNotBlank(reasoningContent, "reasoningContent");
-        this.toolExecutionRequests = ensureNotEmpty(toolExecutionRequests, "toolExecutionRequests");
+        this.reasoningContent = reasoningContent;
+        this.toolExecutionRequests = copyIfNotNull(toolExecutionRequests);
     }
     /**
      * Get the text of the message.
