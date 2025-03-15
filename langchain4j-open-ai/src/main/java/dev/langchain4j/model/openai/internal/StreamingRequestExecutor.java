@@ -101,7 +101,7 @@ class StreamingRequestExecutor<Response> {
                 if ("[DONE]".equals(event.data())) {
                     return;
                 }
-                try {
+//                try {
                     if ("error".equals(event.event())) {
                         errorHandler.accept(new RuntimeException(event.data()));
                         return;
@@ -110,9 +110,9 @@ class StreamingRequestExecutor<Response> {
                     if (response != null) {
                         partialResponseHandler.accept(response); // do not handle exception, fail-fast
                     }
-                } catch (Exception e) {
-                    errorHandler.accept(e);
-                }
+//                } catch (Exception e) {
+//                    errorHandler.accept(e);
+//                }
             }
 
             @Override
